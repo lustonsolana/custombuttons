@@ -1,65 +1,63 @@
-function applyStyles(styles) {
+function applyStyles(platform, styles) {
   const status = document.getElementById('status');
-  status.textContent = 'Applying styles...';
+  status.textContent = `Applying ${platform} styles...`;
   status.className = '';
 
-  // Log styles being applied
-  console.log('Applying styles:', styles);
+  console.log(`Applying ${platform} styles:`, styles);
 
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    chrome.tabs.sendMessage(tabs[0].id, { action: 'applyStyles', styles: styles }, (response) => {
+    chrome.tabs.sendMessage(tabs[0].id, { action: 'applyStyles', platform, styles }, (response) => {
       if (chrome.runtime.lastError) {
         status.textContent = 'Error: Could not connect to content script.';
         status.className = 'error';
         console.error('Runtime error:', chrome.runtime.lastError);
       } else if (response && response.success) {
-        status.textContent = `Styles applied to ${response.buttonCount} button(s)!`;
+        status.textContent = `Styles applied to ${response.buttonCount} ${platform} button(s)!`;
         status.className = 'success';
       } else {
-        status.textContent = 'Error: No buttons found on page.';
+        status.textContent = `Error: No ${platform} buttons found on page.`;
         status.className = 'error';
       }
     });
   });
 
   // Save styles to chrome.storage
-  chrome.storage.local.set({ buttonStyles: styles }, () => {
-    console.log('Styles saved to storage:', styles);
+  chrome.storage.local.set({ [`${platform}Styles`]: styles }, () => {
+    console.log(`${platform} styles saved to storage:`, styles);
   });
 }
 
-function loadSavedStyles() {
+function loadSavedStyles(platform) {
   const inputs = {
-    width: document.getElementById('width'),
-    height: document.getElementById('height'),
-    borderRadius: document.getElementById('borderRadius'),
-    opacity: document.getElementById('opacity'),
-    bgColor: document.getElementById('bgColor'),
-    textColor: document.getElementById('textColor'),
-    iconColor: document.getElementById('iconColor')
+    width: document.getElementById(`${platform}-width`),
+    height: document.getElementById(`${platform}-height`),
+    borderRadius: document.getElementById(`${platform}-borderRadius`),
+    opacity: document.getElementById(`${platform}-opacity`),
+    bgColor: document.getElementById(`${platform}-bgColor`),
+    textColor: document.getElementById(`${platform}-textColor`),
+    iconColor: document.getElementById(`${platform}-iconColor`)
   };
 
-  chrome.storage.local.get('buttonStyles', (data) => {
-    console.log('Retrieved styles from storage:', data.buttonStyles);
+  chrome.storage.local.get(`${platform}Styles`, (data) => {
+    console.log(`Retrieved ${platform} styles from storage:`, data[`${platform}Styles`]);
 
+    const savedStyles = data[`${platform}Styles`] || {};
     const defaults = {
       width: '200px',
       height: '60px',
       borderRadius: '50px',
       opacity: '1',
-      backgroundColor: '#4B5EAA',
+      backgroundColor: platform === 'axiom' ? '#4B5EAA' : '#2B2B3B',
       color: '#FFFFFF',
       iconColor: '#6B7280'
     };
 
-    const savedStyles = data.buttonStyles || {};
-
-    // Ensure values are within valid ranges and use saved values if available
-    inputs.width.value = savedStyles.width ? parseInt(savedStyles.width) : 200;
-    inputs.height.value = savedStyles.height ? parseInt(savedStyles.height) : 60;
-    inputs.borderRadius.value = savedStyles.borderRadius ? parseInt(savedStyles.borderRadius) : 50;
+    // Use saved values or defaults
+    inputs.width.value = savedStyles.width ? parseInt(savedStyles.width.replace('px', '')) : 200;
+    inputs.height.value = savedStyles.height ? parseInt(savedStyles.height.replace('px', '')) : 60;
+    inputs.borderRadius.value = savedStyles.borderRadius ? parseInt(savedStyles.borderRadius.replace('px', '')) : 50;
     inputs.opacity.value = savedStyles.opacity ? parseFloat(savedStyles.opacity) : 1;
-    inputs.bgColor.value = savedStyles.backgroundColor || '#4B5EAA';
+    inputs.bgColor.value = savedStyles.backgroundColor || defaults.backgroundColor;
     inputs.textColor.value = savedStyles.color || '#FFFFFF';
     inputs.iconColor.value = savedStyles.iconColor || '#6B7280';
 
@@ -70,46 +68,59 @@ function loadSavedStyles() {
     inputs.opacity.value = Math.max(0, Math.min(1, inputs.opacity.value));
 
     // Update value displays
-    document.getElementById('width-value').textContent = `${inputs.width.value}px`;
-    document.getElementById('height-value').textContent = `${inputs.height.value}px`;
-    document.getElementById('borderRadius-value').textContent = `${inputs.borderRadius.value}px`;
-    document.getElementById('opacity-value').textContent = inputs.opacity.value;
+    document.getElementById(`${platform}-width-value`).textContent = `${inputs.width.value}px`;
+    document.getElementById(`${platform}-height-value`).textContent = `${inputs.height.value}px`;
+    document.getElementById(`${platform}-borderRadius-value`).textContent = `${inputs.borderRadius.value}px`;
+    document.getElementById(`${platform}-opacity-value`).textContent = inputs.opacity.value;
 
     // Apply loaded styles
     const styles = {
       width: `${inputs.width.value}px`,
       height: `${inputs.height.value}px`,
       borderRadius: `${inputs.borderRadius.value}px`,
-      opacity: inputs.opacity.value,
+      opacity: inputs.opacity.value.toString(),
       backgroundColor: inputs.bgColor.value,
       color: inputs.textColor.value,
       iconColor: inputs.iconColor.value
     };
-    console.log('Loaded styles for application:', styles);
-    applyStyles(styles);
+    console.log(`Loaded ${platform} styles for application:`, styles);
+    applyStyles(platform, styles);
   });
 }
 
-// Update value displays and apply styles on input change
-['width', 'height', 'borderRadius', 'opacity', 'bgColor', 'textColor', 'iconColor'].forEach(id => {
-  const input = document.getElementById(id);
-  input.addEventListener('input', () => {
-    if (['width', 'height', 'borderRadius', 'opacity'].includes(id)) {
-      const valueDisplay = document.getElementById(`${id}-value`);
-      valueDisplay.textContent = id === 'opacity' ? input.value : `${input.value}px`;
-    }
-    const styles = {
-      width: `${document.getElementById('width').value}px`,
-      height: `${document.getElementById('height').value}px`,
-      borderRadius: `${document.getElementById('borderRadius').value}px`,
-      opacity: document.getElementById('opacity').value,
-      backgroundColor: document.getElementById('bgColor').value,
-      color: document.getElementById('textColor').value,
-      iconColor: document.getElementById('iconColor').value
-    };
-    applyStyles(styles);
+// Tab switching
+document.querySelectorAll('.tab-button').forEach(button => {
+  button.addEventListener('click', () => {
+    document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+    button.classList.add('active');
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
+    document.getElementById(button.dataset.tab).classList.remove('hidden');
   });
 });
 
-// Load and apply saved styles on popup open
-loadSavedStyles();
+// Update value displays and apply styles on input change
+['axiom', 'nova'].forEach(platform => {
+  ['width', 'height', 'borderRadius', 'opacity', 'bgColor', 'textColor', 'iconColor'].forEach(id => {
+    const input = document.getElementById(`${platform}-${id}`);
+    input.addEventListener('input', () => {
+      if (['width', 'height', 'borderRadius', 'opacity'].includes(id)) {
+        const valueDisplay = document.getElementById(`${platform}-${id}-value`);
+        valueDisplay.textContent = id === 'opacity' ? input.value : `${input.value}px`;
+      }
+      const styles = {
+        width: `${document.getElementById(`${platform}-width`).value}px`,
+        height: `${document.getElementById(`${platform}-height`).value}px`,
+        borderRadius: `${document.getElementById(`${platform}-borderRadius`).value}px`,
+        opacity: document.getElementById(`${platform}-opacity`).value,
+        backgroundColor: document.getElementById(`${platform}-bgColor`).value,
+        color: document.getElementById(`${platform}-textColor`).value,
+        iconColor: document.getElementById(`${platform}-iconColor`).value
+      };
+      applyStyles(platform, styles);
+    });
+  });
+});
+
+// Load and apply saved styles for both platforms on popup open
+loadSavedStyles('axiom');
+loadSavedStyles('nova');
