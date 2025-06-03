@@ -1,0 +1,149 @@
+/* Tailwind CSS base styles (subset for popup) */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom styles */
+body {
+  font-family: 'Inter', sans-serif;
+  width: 320px;
+  padding: 16px;
+  background: linear-gradient(145deg, #1F2937, #111827);
+  color: #F3F4F6;
+}
+h1 {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  text-align: center;
+  color: #60A5FA;
+}
+.tabs {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.tab-button {
+  padding: 8px 16px;
+  background: #374151;
+  color: #D1D5DB;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.tab-button:hover {
+  background: #4B5563;
+  transform: translateY(-2px);
+}
+.tab-button.active {
+  background: #60A5FA;
+  color: #FFFFFF;
+  transform: translateY(-2px);
+}
+.tab-content {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.tab-content.hidden {
+  display: none;
+  opacity: 0;
+  transform: translateY(10px);
+}
+label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #D1D5DB;
+  margin-bottom: 4px;
+  display: block;
+}
+input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 8px;
+  background: #374151;
+  border-radius: 4px;
+  outline: none;
+  transition: background 0.2s ease;
+}
+input[type="range"]:hover {
+  background: #4B5563;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  background: #60A5FA;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(96, 165, 250, 0.5);
+  transition: transform 0.2s ease;
+}
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: #60A5FA;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(96, 165, 250, 0.5);
+  border: none;
+  transition: transform 0.2s ease;
+}
+input[type="range"]::-moz-range-thumb:hover {
+  transform: scale(1.2);
+}
+input[type="color"] {
+  width: 100%;
+  height: 32px;
+  border: none;
+  border-radius: 4px;
+  background: #374151;
+  padding: 2px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+input[type="color"]:hover {
+  transform: scale(1.05);
+}
+.input-group {
+  margin-bottom: 16px;
+}
+.value-display {
+  font-size: 10px;
+  color: #9CA3AF;
+  margin-top: 4px;
+}
+#status {
+  font-size: 12px;
+  text-align: center;
+  margin-top: 12px;
+}
+.error {
+  color: #F87171;
+}
+.success {
+  color: #34D399;
+}
+.twitter-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 32px;
+  height: 32px;
+  background: #3B82F6;
+  border-radius: 50%;
+  margin: 16px auto 0;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+.twitter-btn:hover {
+  background: #2563EB;
+  transform: scale(1.1);
+}
+.twitter-btn img {
+  width: 20px;
+  height: 20px;
+}
