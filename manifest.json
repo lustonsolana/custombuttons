@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Axiom Button Customizer",
   "version": "1.5.1",
-  "description": "Customize all Axiom buy buttons on axiom.trade with persistent settings and real-time updates.",
+  "description": "Customize Buy Buttons on Axiom.trade.",
   "permissions": ["activeTab", "scripting", "storage"],
   "action": {
     "default_popup": "popup.html"
