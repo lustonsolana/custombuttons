@@ -1,5 +1,5 @@
 # axiombutton
-Browser extension that allows you to customize axiom's buy buttons.
+Browser extension that allows you to customize buttons on nova & axiom
 
 
 Issues? DM me on twitter @lust_sol
